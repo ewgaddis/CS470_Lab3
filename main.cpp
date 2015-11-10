@@ -53,5 +53,8 @@ int main(int argc, char *argv[])
 	}
 
 	MyTeam.Close();
+
+	cout << "Press any key to continue";
+	while(!_kbhit());
 	return 0;
 }

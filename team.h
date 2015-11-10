@@ -730,6 +730,73 @@ public:
 		return true;
 	}
 
+	bool getOCCGrid(int tank, double *x, double *y,
+					vector<string> *grid)
+	{
+		char buffer[32];
+		sprintf(buffer, "occgrid %i", tank);
+
+		SendLine(buffer);
+		ReadAck();
+
+		vector <string> v=ReadArr();
+		if(v.at(0) != "begin")
+		{
+			return false;
+		}
+
+		v.clear();
+		v = ReadArr();
+
+		if(v.at(0) != "at")
+		{
+			return false;
+		}
+
+		const string & atStr = v.at(1);
+
+		int pos = atStr.find(",");
+		const string & xStr = atStr.substr(0, pos);
+		const string & yStr = atStr.substr(pos + 1);
+
+		*x = atof(xStr.c_str());
+		*y = atof(yStr.c_str());
+
+		v.clear();
+		v = ReadArr();
+
+		if(v.at(0) != "size")
+		{
+			return false;
+		}
+
+		const string & sizeStr = v.at(1);
+
+		const string & rowsStr = sizeStr.substr(0, sizeStr.find("x"));
+
+		int rows = atoi(rowsStr.c_str());
+
+		grid->clear();
+
+		v.clear();
+		v = ReadArr();
+
+		for(int r = 0; r < rows; ++r)
+		{
+			grid->push_back(v.at(0));
+
+			v.clear();
+			v = ReadArr();
+		}
+
+		if(v.at(0) != "end")
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	int Close() {
 #ifdef WINDOWS
 		closesocket(sd);

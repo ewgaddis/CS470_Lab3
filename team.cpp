@@ -35,7 +35,7 @@ void world_init(BZRC *my_team)
 		//agents.at(i) = new PDAgent(team, i);
 	}*/
 
-	vector<tank_t> tanks;
+	/*vector<tank_t> tanks;
 	team->get_mytanks(&tanks);
 
 	vector<flag_t> flags;
@@ -57,7 +57,7 @@ void world_init(BZRC *my_team)
 
 
 
-	search1 = new SearchAgent(team, 0,graph,new ASearch(graph));
+	search1 = new SearchAgent(team, 0,graph,new ASearch(graph));*/
 
 }
 
@@ -67,11 +67,16 @@ void robot_pre_update()
 
 bool robot_update()
 {
+	double x, y;
+	vector<string> grid;
+
+	cout << "Getting grid data..." << endl;
+	team->getOCCGrid(0, &x, &y, &grid);
 	//dumb1->Update();
 	//dumb2->Update();
 	//dumb3->Update();
 	//pd1->Update();
-	search1->Update("blue");
+	//search1->Update("blue");
 	/*for (int i = 0; i < agents.size(); i++)
 	{
 		string color;
@@ -103,7 +108,7 @@ bool robot_update()
 	drawGraphSearch(graph, new DFSearch(graph), 100,
 					"./Data/DFS2/dfs",
 					"Depth-First Search - Iteration #");*/
-	return true;
+	return false;
 }
 
 void robot_post_update()
