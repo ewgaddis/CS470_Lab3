@@ -1,7 +1,10 @@
 #define _CRT_SECURE_NO_DEPRECATE 1
 #include <iostream>
 #include <conio.h>
+
 #include "team.h"
+#include "gridWindow.h"
+
 using namespace std;
 
 const char *kDefaultServerName = "localhost";
@@ -44,6 +47,9 @@ int main(int argc, char *argv[])
 	// Calling agent code
 	world_init(&MyTeam);
 
+	// Initialize grid window
+	initializeGridWindow();
+
 	bool exit = false;
 	while(!exit)
 	{
@@ -51,6 +57,8 @@ int main(int argc, char *argv[])
 		exit = !robot_update();
 		robot_post_update();
 	}
+
+	shutdownGridWindow();
 
 	MyTeam.Close();
 

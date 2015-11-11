@@ -7,6 +7,7 @@
 #include "dumbAgent.h"
 #include "pdAgent.h"
 #include "searchAgent.h"
+#include "gridWindow.h"
 
 #include <vector>
 #include <conio.h>
@@ -67,11 +68,29 @@ void robot_pre_update()
 
 bool robot_update()
 {
-	double x, y;
-	vector<string> grid;
+	double **grid = new double*[50];
 
-	cout << "Getting grid data..." << endl;
-	team->getOCCGrid(0, &x, &y, &grid);
+	for(int j = 0; j < 50; ++j)
+	{
+		grid[j] = new double[50];
+
+		for(int i = 0; i < 50; ++i)
+		{
+			grid[j][i] = (rand() % 101) / 100.0;
+		}
+	}
+
+	grid[0][0] = grid[0][1] = grid[0][2] = 1;
+	grid[1][0] = grid[1][1] = grid[1][2] = 1;
+
+	updateGridWindow(50, grid);
+
+	for(int j = 0; j < 50; ++j)
+	{
+		delete[] grid[j];
+	}
+
+	delete[] grid;
 	//dumb1->Update();
 	//dumb2->Update();
 	//dumb3->Update();
@@ -108,7 +127,7 @@ bool robot_update()
 	drawGraphSearch(graph, new DFSearch(graph), 100,
 					"./Data/DFS2/dfs",
 					"Depth-First Search - Iteration #");*/
-	return false;
+	return !hasExitedGridWindow();
 }
 
 void robot_post_update()
