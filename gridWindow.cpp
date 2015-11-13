@@ -4,7 +4,7 @@
 
 using namespace std;
 
-#define WINDOW_SIZE 400
+#define WINDOW_SIZE 800
 
 GLFWwindow *gridWindow = 0;
 
@@ -57,15 +57,17 @@ void updateGridWindow(int gridSize, double **grid)
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	GLubyte frameBuffer[WINDOW_SIZE * WINDOW_SIZE * 3];
+	GLubyte *frameBuffer = new GLubyte[WINDOW_SIZE * WINDOW_SIZE * 3];
 
 	int denom = WINDOW_SIZE / gridSize;
 
 	for(int j = 0; j < WINDOW_SIZE; ++j)
 	{
+		int r = j / denom;
+
 		for(int i = 0; i < WINDOW_SIZE; ++i)
 		{
-			GLubyte value = (GLubyte)(grid[j / denom][i / denom] * 255);
+			GLubyte value = (GLubyte)(grid[r][i] * 255);
 
 			frameBuffer[(j * WINDOW_SIZE + i) * 3    ] = value;
 			frameBuffer[(j * WINDOW_SIZE + i) * 3 + 1] = value;
@@ -79,6 +81,8 @@ void updateGridWindow(int gridSize, double **grid)
 	glfwSwapBuffers(gridWindow);
 		
 	glfwPollEvents();
+
+	delete[] frameBuffer;
 }
 
 void shutdownGridWindow()

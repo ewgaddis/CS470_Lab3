@@ -44,11 +44,11 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	// Calling agent code
-	world_init(&MyTeam);
-
 	// Initialize grid window
 	initializeGridWindow();
+
+	// Calling agent code
+	world_init(&MyTeam);
 
 	bool exit = false;
 	while(!exit)

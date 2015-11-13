@@ -730,7 +730,7 @@ public:
 		return true;
 	}
 
-	bool getOCCGrid(int tank, double *x, double *y,
+	bool getOCCGrid(int tank, int *x, int *y,
 					vector<string> *grid)
 	{
 		char buffer[32];
@@ -759,8 +759,8 @@ public:
 		const string & xStr = atStr.substr(0, pos);
 		const string & yStr = atStr.substr(pos + 1);
 
-		*x = atof(xStr.c_str());
-		*y = atof(yStr.c_str());
+		*x = atoi(xStr.c_str());
+		*y = atoi(yStr.c_str());
 
 		v.clear();
 		v = ReadArr();
