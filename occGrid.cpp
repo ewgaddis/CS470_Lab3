@@ -1,5 +1,7 @@
 #include "occGrid.h"
 
+#include "geometry.h"
+
 #include <iostream>
 
 using namespace std;
@@ -86,7 +88,7 @@ void OCCGrid::getObstacles(vector<obstacle_t> *obstacles,
 						   double occThreshold,
 						   int minWidth, int minHeight)
 {
-	if(obstacles == 0)
+	if(!obstacles)
 	{
 		return;
 	}
@@ -99,6 +101,32 @@ void OCCGrid::getObstacles(vector<obstacle_t> *obstacles,
 			{
 				double x = i - halfGridSize;
 				double y = j - halfGridSize;
+
+				bool skip = false;
+
+				vector<obstacle_t>::const_iterator itObstacle = obstacles->begin();
+				while(itObstacle != obstacles->end())
+				{
+					const obstacle_t obstacle = (*itObstacle);
+
+					if(isPointWithinObstacle(Vector(x, y),
+											 Vector(obstacle.o_corner[0][0], obstacle.o_corner[0][1]),
+											 Vector(obstacle.o_corner[1][0], obstacle.o_corner[1][1]),
+											 Vector(obstacle.o_corner[3][0], obstacle.o_corner[3][1])))
+					{
+						i = obstacle.o_corner[1][0] + halfGridSize;
+
+						skip = true;
+						break;
+					}
+
+					++itObstacle;
+				}
+
+				if(skip)
+				{
+					continue;
+				}
 
 				int i1 = i + 1;
 
@@ -141,7 +169,7 @@ void OCCGrid::getObstacles(vector<obstacle_t> *obstacles,
 
 				obstacles->push_back(obstacle);
 
-				return;
+				i = i1;
 			}
 		}
 	}

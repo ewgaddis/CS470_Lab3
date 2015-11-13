@@ -118,3 +118,20 @@ bool doLinesIntersect(const Vector &p0,
 
 	return true;
 }
+
+bool isPointWithinObstacle(const Vector &p,
+					       const Vector &c0,
+					       const Vector &c1,
+					       const Vector &c3)
+{
+	Vector min(c0);
+	Vector max(c1.x, c3.y);
+
+	if(p.x < min.x) return false;
+	if(p.x > max.x) return false;
+
+	if(p.y < min.y) return false;
+	if(p.y > max.y) return false;
+
+	return true;
+}

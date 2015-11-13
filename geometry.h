@@ -140,4 +140,9 @@ bool doLinesIntersect(const Vector &p0,
 					  const Vector &q0,
 					  const Vector &q1);
 
+bool isPointWithinObstacle(const Vector &p,
+					       const Vector &c0,
+					       const Vector &c1,
+					       const Vector &c3);
+
 #endif
