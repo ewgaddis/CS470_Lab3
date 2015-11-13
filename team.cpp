@@ -8,6 +8,7 @@
 #include "pdAgent.h"
 #include "searchAgent.h"
 #include "gridWindow.h"
+#include "scoutAgent.h"
 
 #include <vector>
 #include <conio.h>
@@ -21,10 +22,28 @@ DumbAgent *dumb3;
 PDAgent *pd1;
 vector <PDAgent*> agents;
 SearchAgent *search1;
+ScoutAgent *scout1;
+ScoutAgent *scout2;
+double trueNeg;
+double truePos;
 
 void world_init(BZRC *my_team)
 {
 	team = my_team;
+	vector<constant_t> constants;
+	team->get_constants(&constants);
+	for each(constant_t c in constants){
+		if (c.name.compare("truenegative") == 0){
+			trueNeg = atof(c.value.c_str());
+			//printf("name: %s value: %s \n", c.name.c_str(), c.value.c_str());
+		}
+		else if (c.name.compare("truepositive") == 0){
+			trueNeg = atof(c.value.c_str());
+			//printf("name: %s value: %s \n", c.name.c_str(), c.value.c_str());
+		}
+		//printf("1name: %s value: %s \n", c.name.c_str(), c.value.c_str());
+		//printf(c.name.c_str());
+	}
 	//dumb1 = new DumbAgent(team, 0);
 	//dumb2 = new DumbAgent(team, 1);
 	//dumb3 = new DumbAgent(team, 2);
@@ -59,6 +78,7 @@ void world_init(BZRC *my_team)
 
 
 	search1 = new SearchAgent(team, 0,graph,new ASearch(graph));*/
+	scout1 = new ScoutAgent(team,0,"upper");
 
 }
 
@@ -91,6 +111,10 @@ bool robot_update()
 	}
 
 	delete[] grid;
+	scout1->Update();
+	//bzrflag --window-size=800x600 --default-true-positive=.97 --default-true-negative=.9 --occgrid-width=100 --no-report-obstacles
+	//notes for self: get robot exploring grid, get it to go around obstacles, set waypoints to next gray spot. enjoy wandering. repulse from each spot?
+	//truepositive/truenegative
 	//dumb1->Update();
 	//dumb2->Update();
 	//dumb3->Update();
