@@ -12,8 +12,16 @@ private:
 	int halfGridSize;
 	double **grid;
 
+	double truePositive;
+	double trueNegative;
+
+private:
+	double getLikelihood(bool o, bool s);
+	double getNormalizer(bool o, int i, int j);
+
 public:
-	OCCGrid(BZRC *t, int size, double prior);
+	OCCGrid(BZRC *t, int size, double prior,
+			double truePos, double trueNeg);
 	~OCCGrid();
 
 	void update(int tank);

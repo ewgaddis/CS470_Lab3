@@ -43,7 +43,7 @@ void world_init(BZRC *my_team)
 	}
 	scout1 = new ScoutAgent(team, 0, "upper");
 
-	grid = new OCCGrid(team, 800, 0.5);
+	grid = new OCCGrid(team, 800, 0.5, 0.97, 0.9);
 }
 
 void robot_pre_update()
