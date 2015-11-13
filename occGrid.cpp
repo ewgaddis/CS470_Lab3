@@ -1,7 +1,5 @@
 #include "occGrid.h"
 
-#include "team.h"
-
 #include <iostream>
 
 using namespace std;
@@ -80,6 +78,71 @@ void OCCGrid::update(int tank)
 			bool o = (row[c] == '1');
 
 			grid[j][i] = getLikelihood(o, true) * grid[j][i] / getNormalizer(o, i, j);
+		}
+	}
+}
+
+void OCCGrid::getObstacles(vector<obstacle_t> *obstacles,
+						   double occThreshold,
+						   int minWidth, int minHeight)
+{
+	if(obstacles == 0)
+	{
+		return;
+	}
+
+	for(int j = 0; j < gridSize; ++j)
+	{
+		for(int i = 0; i < gridSize; ++i)
+		{
+			if(grid[j][i] >= occThreshold)
+			{
+				double x = i - halfGridSize;
+				double y = j - halfGridSize;
+
+				int i1 = i + 1;
+
+				while(grid[j][i1] >= occThreshold && i1 < gridSize)
+				{
+					++i1;
+				}
+
+				if(i1 < i + minWidth)
+				{
+					continue;
+				}
+
+				int j1 = j + 1;
+
+				while(grid[j1][i] >= occThreshold && j1 < gridSize)
+				{
+					++j1;
+				}
+
+				if(j1 < j + minHeight)
+				{
+					continue;
+				}
+
+				obstacle_t obstacle;
+				obstacle.numCorners = 4;
+
+				obstacle.o_corner[0][0] = x;
+				obstacle.o_corner[0][1] = y;
+
+				obstacle.o_corner[1][0] = i1 - halfGridSize;
+				obstacle.o_corner[1][1] = y;
+
+				obstacle.o_corner[2][0] = i1 - halfGridSize;
+				obstacle.o_corner[2][1] = j1 - halfGridSize;
+
+				obstacle.o_corner[3][0] = x;
+				obstacle.o_corner[3][1] = j1 - halfGridSize;
+
+				obstacles->push_back(obstacle);
+
+				return;
+			}
 		}
 	}
 }

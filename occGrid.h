@@ -1,7 +1,9 @@
 #ifndef OCC_GRID_H
 #define OCC_GRID_H
 
-class BZRC;
+#include "team.h"
+
+#include <vector>
 
 class OCCGrid
 {
@@ -25,6 +27,10 @@ public:
 	~OCCGrid();
 
 	void update(int tank);
+
+	void getObstacles(std::vector<obstacle_t> *obstacles,
+					  double occThreshold,
+					  int minWidth, int minHeight);
 
 	int    getGridSize() const { return gridSize; }
 	double **getGrid()         { return grid;     }
