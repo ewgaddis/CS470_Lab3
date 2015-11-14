@@ -55,7 +55,7 @@ bool robot_update()
 	grid->update(0);
 
 	vector<obstacle_t> obstacles;
-	grid->getObstacles(&obstacles, 0.95, 10, 10);
+	grid->getObstacles(&obstacles, 0.9, 20, 20);
 
 	updateGridWindow(grid->getGridSize(),
 					 grid->getGrid(),

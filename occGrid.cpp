@@ -114,7 +114,7 @@ void OCCGrid::getObstacles(vector<obstacle_t> *obstacles,
 											 Vector(obstacle.o_corner[1][0], obstacle.o_corner[1][1]),
 											 Vector(obstacle.o_corner[3][0], obstacle.o_corner[3][1])))
 					{
-						i = obstacle.o_corner[1][0] + halfGridSize;
+						i = (int)obstacle.o_corner[1][0] + halfGridSize;
 
 						skip = true;
 						break;
@@ -152,6 +152,20 @@ void OCCGrid::getObstacles(vector<obstacle_t> *obstacles,
 					continue;
 				}
 
+				int j2 = j + 1;
+
+				while(grid[j2][i1 - 1] >= occThreshold && j2 < gridSize)
+				{
+					++j2;
+				}
+
+				int j3 = j1;
+
+				if(j2 >= j + minHeight && j2 < j1)
+				{
+					j3 = j2;
+				}
+
 				obstacle_t obstacle;
 				obstacle.numCorners = 4;
 
@@ -162,10 +176,10 @@ void OCCGrid::getObstacles(vector<obstacle_t> *obstacles,
 				obstacle.o_corner[1][1] = y;
 
 				obstacle.o_corner[2][0] = i1 - halfGridSize;
-				obstacle.o_corner[2][1] = j1 - halfGridSize;
+				obstacle.o_corner[2][1] = j3 - halfGridSize;
 
 				obstacle.o_corner[3][0] = x;
-				obstacle.o_corner[3][1] = j1 - halfGridSize;
+				obstacle.o_corner[3][1] = j3 - halfGridSize;
 
 				obstacles->push_back(obstacle);
 
