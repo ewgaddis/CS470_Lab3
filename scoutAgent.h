@@ -4,6 +4,7 @@
 #include "team.h"
 #include "potentialFields.h"
 #include "graphAlgorithms.h"
+#include "occGrid.h"
 
 class ScoutAgent {
 	BZRC* myTeam;
@@ -18,7 +19,7 @@ class ScoutAgent {
 	Vector oldLoc;
 public: ScoutAgent(BZRC* team, int index, string area);
 
-		void Update();
+		void Update(vector <obstacle_t> obstacles);// , OCCGrid grid);
 private:
 	boolean isCloseToGoal(Vector location, Vector goal);
 };

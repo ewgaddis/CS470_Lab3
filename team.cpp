@@ -35,7 +35,7 @@ void world_init(BZRC *my_team)
 			//printf("name: %s value: %s \n", c.name.c_str(), c.value.c_str());
 		}
 		else if (c.name.compare("truepositive") == 0){
-			trueNeg = atof(c.value.c_str());
+			truePos = atof(c.value.c_str());
 			//printf("name: %s value: %s \n", c.name.c_str(), c.value.c_str());
 		}
 		//printf("1name: %s value: %s \n", c.name.c_str(), c.value.c_str());
@@ -43,7 +43,7 @@ void world_init(BZRC *my_team)
 	}
 	scout1 = new ScoutAgent(team, 0, "upper");
 
-	grid = new OCCGrid(team, 800, 0.5, 0.97, 0.9);
+	grid = new OCCGrid(team, 800, 0.5, truePos, trueNeg);
 }
 
 void robot_pre_update()
@@ -71,7 +71,7 @@ bool robot_update()
 		return false;
 	}
 
-	scout1->Update();
+	scout1->Update(obstacles);// , *grid);
 
 	return true;
 }

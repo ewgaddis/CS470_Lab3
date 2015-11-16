@@ -21,7 +21,7 @@ ScoutAgent::ScoutAgent(BZRC* team, int index,string area){
 				x = -400;
 			else
 				x = 400;
-			y += 100;
+			y += 50;
 		}
 	}
 	
@@ -36,10 +36,10 @@ ScoutAgent::ScoutAgent(BZRC* team, int index,string area){
 	maxtime = 30;
 }
 
-void ScoutAgent::Update(){
+void ScoutAgent::Update(vector <obstacle_t> obstacles){//, OCCGrid grid){
 	Vector newDirection = Vector();
 	vector <tank_t> myTanks;
-	vector <obstacle_t> myObst;
+	vector <obstacle_t> myObst = obstacles;
 	vector <flag_t> allFlags;
 	myTeam->get_mytanks(&myTanks);
 	//flag_t goal = allFlags[0];
@@ -47,23 +47,7 @@ void ScoutAgent::Update(){
 	myTeam->shoot(botIndex);
 	Vector curGoal;
 
-	if (time >= maxtime)
-	{
-		time = 0;
-		Vector* direction = new Vector(myTanks[botIndex].velocity[0], myTanks[botIndex].velocity[1]);
-		Vector* newDir = new Vector();
-		direction->perpendicular(newDir);
-		//	P3 = (-v.y, v.x) / Sqrt(v.x ^ 2 + v.y ^ 2) * h
-		Vector top = Vector(-myTanks[botIndex].velocity[1], myTanks[botIndex].velocity[0]);
-		double scalar = sqrt(myTanks[botIndex].velocity[0] * myTanks[botIndex].velocity[0] +
-			myTanks[botIndex].velocity[1] * myTanks[botIndex].velocity[1]) * 50;
-		Vector newGoal = Vector(top.x / scalar, top.y / scalar);
-		printf("\n x=%f y=%f", newGoal.x, newGoal.y);
-		path.push_front(newGoal);
-		//Vector* newGoal = new Vector(myTanks[botIndex].pos[0] + newDir->x, myTanks[botIndex].pos[1] + newDir->y);
-		//get perpendicular angle to direction and move 50 in that direction.
-		//push back on old goal and add the above new one in front of that one.
-	}
+	//1st dimention = j = rows, 2nd is i = column,  coord bottom left is 0 top right = 800 800 i-400, j-400 = position.
 	//if (myTanks[botIndex].flag.compare("-") == 0){
 		int i = 0;
 		/*while (goal.color != color)//"red")
@@ -73,8 +57,25 @@ void ScoutAgent::Update(){
 		//curGoal = path.front();
 		if (path.size() != 0)
 			curGoal = path.front();
-		else
-			curGoal = Vector(0, 0);
+		else{
+			//search for new goal.
+			//curGoal = Vector(0, 0);
+			/*int i = 0;
+			int j = 0;
+			double ** g = grid.getGrid();
+			boolean found = false;
+			for (j = 0; j < grid.getGridSize(); j++){
+				for (i = 0; i < grid.getGridSize(); i++){
+					if (g[j][i] < 0.9){
+						path.push_back(Vector(i - 400, j - 400));
+						found = true;
+						break;
+					}
+				}
+				if (found)
+					break;
+			}*/
+		}
 		if (isCloseToGoal(Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), curGoal)){
 			if (!path.empty())
 				path.pop_front();
@@ -89,21 +90,21 @@ void ScoutAgent::Update(){
 	//}
 	//end frobbing - f = a/dist + b
 	//last param = range that obstacles affect bot.
-	/*vector <Vector> rForces = calcRepulsiveForcesFromObstacles(
-		Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), myObst, 10, 0, 10); //range was 40 a was 40
+	vector <Vector> rForces = calcRepulsiveForcesFromObstacles(
+		Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), myObst, 40, 0, 40); //range was 40 a was 40
 	vector <Vector> tForces = calcTangentialForcesFromObstacles(
-		Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), myObst, 10, 0, 10);//range was 50 a was 100
-		*/
+		Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), myObst, 100, 0, 50);//range was 50 a was 100
+	
 
 	newDirection += aForce;
-	/*for each (Vector v in rForces)
+	for each (Vector v in rForces)
 	{
 		newDirection += v;
 	}
 	for each(Vector v in tForces)
 	{
 		newDirection += v;
-	}*/
+	}
 	if (newDirection.x > 20.0)
 		newDirection.x = 20.0;
 	if (newDirection.y > 20.0)
@@ -144,12 +145,12 @@ void ScoutAgent::Update(){
 	//myTeam->accelx(botIndex,)
 	//change this to distance from last location :P
 	//d=sqrt((x2-x1)^2+(y2-y1)^2)
-	double dist = sqrt((myTanks[botIndex].pos[0] - oldLoc.x)*(myTanks[botIndex].pos[0] - oldLoc.x) + 
+	/*double dist = sqrt((myTanks[botIndex].pos[0] - oldLoc.x)*(myTanks[botIndex].pos[0] - oldLoc.x) + 
 		(myTanks[botIndex].pos[1] - oldLoc.y)*(myTanks[botIndex].pos[1] - oldLoc.y));
 	if (dist < 20 && dist > -20){ //if bot's current speed, not the assigned speed == 0
 		time++;
 		printf("\nTic");
-	}
+	}*/
 }
 
 boolean ScoutAgent::isCloseToGoal(Vector location, Vector goal){
