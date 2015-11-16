@@ -19,7 +19,7 @@ class ScoutAgent {
 	Vector oldLoc;
 public: ScoutAgent(BZRC* team, int index, string area);
 
-		void Update(vector <obstacle_t> obstacles);// , OCCGrid grid);
+		void Update(vector <obstacle_t> obstacles, OCCGrid * grid);
 private:
 	boolean isCloseToGoal(Vector location, Vector goal);
 };

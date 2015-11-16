@@ -8,7 +8,7 @@ ScoutAgent::ScoutAgent(BZRC* team, int index,string area){
 
 	deque<int>::iterator itNode = p.begin();// +1;
 
-	if (area == "upper"){
+	/*if (area == "upper"){
 		double x = 400;
 		double y = 0;
 		//while (itNode != p.end())
@@ -21,9 +21,9 @@ ScoutAgent::ScoutAgent(BZRC* team, int index,string area){
 				x = -400;
 			else
 				x = 400;
-			y += 50;
+			y += 100;
 		}
-	}
+	}*/
 	
 	botIndex = index;
 	curVector = new Vector();
@@ -31,12 +31,12 @@ ScoutAgent::ScoutAgent(BZRC* team, int index,string area){
 	oldLoc = Vector();
 	vector <tank_t> myTanks;
 	oldAngle = 0.0;
-	maxDist = 10;
+	maxDist = 20;
 	time = 0;
 	maxtime = 30;
 }
 
-void ScoutAgent::Update(vector <obstacle_t> obstacles){//, OCCGrid grid){
+void ScoutAgent::Update(vector <obstacle_t> obstacles, OCCGrid * grid){
 	Vector newDirection = Vector();
 	vector <tank_t> myTanks;
 	vector <obstacle_t> myObst = obstacles;
@@ -60,31 +60,73 @@ void ScoutAgent::Update(vector <obstacle_t> obstacles){//, OCCGrid grid){
 		else{
 			//search for new goal.
 			//curGoal = Vector(0, 0);
-			/*int i = 0;
+			int i = 0;
 			int j = 0;
-			double ** g = grid.getGrid();
+			double ** g = grid->getGrid();
 			boolean found = false;
-			for (j = 0; j < grid.getGridSize(); j++){
-				for (i = 0; i < grid.getGridSize(); i++){
-					if (g[j][i] < 0.9){
-						path.push_back(Vector(i - 400, j - 400));
+			for (j = 0; j < grid->getGridSize(); j++){
+				for (i = 0; i < grid->getGridSize(); i++){
+					//printf("\nHmm: %f", g[j][i]);
+					if (g[j][i] < 0.9 && g[j][i] > 0){
+						int newI = i-400;
+						int newJ = j-400;
+						if (i <= -390)
+							newI += 10;
+						else if (i >= 390)
+							newI -= 10;
+						if (j <= -390)
+							newJ += 10;
+						else if (j>=390)
+							newJ -= 10;
+						path.push_back(Vector(newI, newJ));
 						found = true;
+						curGoal = path.front();
+						printf("\nadding goal: %d %d", newI, newJ);
 						break;
 					}
 				}
 				if (found)
 					break;
-			}*/
+			}
 		}
 		if (isCloseToGoal(Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), curGoal)){
 			if (!path.empty())
 				path.pop_front();
 			if (path.size() != 0)
 				curGoal = path.front();
-			else
-				curGoal = Vector(0, 0);
+			else{
+				//curGoal = Vector(0, 0);
+				int i = 0;
+				int j = 0;
+				double ** g = grid->getGrid();
+				boolean found = false;
+				for (j = 0; j < grid->getGridSize(); j++){
+					for (i = 0; i < grid->getGridSize(); i++){
+						//printf("\nHmm2: %f", g[j][i]);
+						if (g[j][i] < 0.9 && g[j][i] > 0){
+							int newI = i-400;
+							int newJ = j-400;
+							if (i <= -390)
+								newI += 10;
+							else if (i >= 390)
+								newI -= 10;
+							if (j <= -390)
+								newJ += 10;
+							else if (j>=390)
+								newJ -= 10;
+							path.push_back(Vector(newI, newJ));
+							found = true;
+							curGoal = path.front();
+							printf("\nadding goal2: %d %d", newI, newJ);
+							break;
+						}
+					}
+					if (found)
+						break;
+				}
+			}
 		}
-
+		printf("\nCurGoal: %f %f", curGoal.x, curGoal.y);
 		aForce = calcAttractiveForceToGoal(Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), curGoal, 0.5, 20, 1);//Vector(goal.pos[0], goal.pos[1]),
 		//0.5, 20, 1);
 	//}
