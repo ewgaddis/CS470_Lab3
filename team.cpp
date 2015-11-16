@@ -71,7 +71,7 @@ bool robot_update()
 		return false;
 	}
 
-	scout1->Update(obstacles);// , *grid);
+	scout1->Update(obstacles, grid);
 
 	return true;
 }
