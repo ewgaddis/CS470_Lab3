@@ -21,6 +21,10 @@ private:
 	double getLikelihood(bool o, bool s);
 	double getNormalizer(bool o, int i, int j);
 
+	bool isPointInObstacle(int i, int j,
+						   const std::vector<obstacle_t> *obstacles,
+						   int *newI) const;
+
 public:
 	OCCGrid(BZRC *t, int size, double prior,
 			double truePos, double trueNeg);

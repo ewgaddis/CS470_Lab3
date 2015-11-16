@@ -10,15 +10,40 @@ double OCCGrid::getLikelihood(bool o, bool s)
 {
 	if(s)
 	{
-		return (o ? truePositive : 1.0 - trueNegative);
+		return (o ? truePositive : 1.0 - truePositive);
 	}
 
-	return (o ? 1.0 - truePositive : trueNegative);
+	return (o ? 1.0 - trueNegative : trueNegative);
 }
 
 double OCCGrid::getNormalizer(bool o, int i, int j)
 {
 	return getLikelihood(o, true) * grid[j][i] + getLikelihood(o, false) * (1.0 - grid[j][i]);
+}
+
+bool OCCGrid::isPointInObstacle(int i, int j,
+								const vector<obstacle_t> *obstacles,
+								int *newI) const
+{
+	Vector p(i - halfGridSize, j - halfGridSize);
+
+	vector<obstacle_t>::const_iterator itObstacle = obstacles->begin();
+	while(itObstacle != obstacles->end())
+	{
+		const obstacle_t obstacle = (*itObstacle);
+
+		if(isPointWithinObstacle(p, Vector(obstacle.o_corner[0][0], obstacle.o_corner[0][1]),
+									Vector(obstacle.o_corner[1][0], obstacle.o_corner[1][1]),
+									Vector(obstacle.o_corner[3][0], obstacle.o_corner[3][1])))
+		{
+			*newI = (int)obstacle.o_corner[1][0] + halfGridSize;
+			return true;
+		}
+
+		++itObstacle;
+	}
+
+	return false;
 }
 
 OCCGrid::OCCGrid(BZRC *t,
@@ -68,14 +93,21 @@ void OCCGrid::update(int tank)
 
 	for(int r = 0; r < (int)sensorGrid.size(); ++r)
 	{
+		int i = halfGridSize + x + r;
+
+		if(i < 0 || i >= gridSize)
+			continue;
+
 		const string & row = sensorGrid[r];
 
 		int rowLength = (int)row.length();
 
 		for(int c = rowLength - 1; c >= 0; --c)
 		{
-			int i = halfGridSize + x + r;
 			int j = halfGridSize + y + c;
+
+			if(j < 0 || j >= gridSize)
+				continue;
 
 			bool o = (row[c] == '1');
 
@@ -99,44 +131,24 @@ void OCCGrid::getObstacles(vector<obstacle_t> *obstacles,
 		{
 			if(grid[j][i] >= occThreshold)
 			{
-				double x = i - halfGridSize;
-				double y = j - halfGridSize;
-
-				bool skip = false;
-
-				vector<obstacle_t>::const_iterator itObstacle = obstacles->begin();
-				while(itObstacle != obstacles->end())
-				{
-					const obstacle_t obstacle = (*itObstacle);
-
-					if(isPointWithinObstacle(Vector(x, y),
-											 Vector(obstacle.o_corner[0][0], obstacle.o_corner[0][1]),
-											 Vector(obstacle.o_corner[1][0], obstacle.o_corner[1][1]),
-											 Vector(obstacle.o_corner[3][0], obstacle.o_corner[3][1])))
-					{
-						i = (int)obstacle.o_corner[1][0] + halfGridSize;
-
-						skip = true;
-						break;
-					}
-
-					++itObstacle;
-				}
-
-				if(skip)
+				if(isPointInObstacle(i, j, obstacles, &i))
 				{
 					continue;
 				}
 
 				int i1 = i + 1;
+				int temp = i1;
 
-				while(grid[j][i1] >= occThreshold && i1 < gridSize)
+				while(grid[j][i1] >= occThreshold &&
+					i1 < gridSize &&
+					!isPointInObstacle(i1, j, obstacles, &temp))
 				{
 					++i1;
 				}
 
 				if(i1 < i + minWidth)
 				{
+					i = temp;
 					continue;
 				}
 
@@ -165,6 +177,9 @@ void OCCGrid::getObstacles(vector<obstacle_t> *obstacles,
 				{
 					j3 = j2;
 				}
+
+				double x = i - halfGridSize;
+				double y = j - halfGridSize;
 
 				obstacle_t obstacle;
 				obstacle.numCorners = 4;
