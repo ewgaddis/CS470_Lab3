@@ -4,18 +4,20 @@
 using namespace std;
 ScoutAgent::ScoutAgent(BZRC* team, int index,string area){
 	myTeam = team;
-	search = NULL;
-	graph = NULL;
-	numObstacles = 0;
+	myArea = area;
+	//search = NULL;
+	//graph = NULL;
+	//numObstacles = 0;
 	deque<int> p;
 
 	deque<int>::iterator itNode = p.begin();// +1;
 
-	/*if (area == "upper"){
-		double x = 400;
+	if (area == "upper"){
+		path.push_back(Vector(390, 390));
+		/*double x = 400;
 		double y = 0;
 		//while (itNode != p.end())
-		while (y <=400)
+		/*while (y <=400)
 		{
 			Vector pos1 = Vector(x, y);
 			path.push_back(pos1);
@@ -25,8 +27,12 @@ ScoutAgent::ScoutAgent(BZRC* team, int index,string area){
 			else
 				x = 400;
 			y += 100;
-		}
-	}*/
+		}*/
+	}
+	else
+	{
+		path.push_back(Vector(-390, -390));
+	}
 	
 	botIndex = index;
 	curVector = new Vector();
@@ -34,7 +40,7 @@ ScoutAgent::ScoutAgent(BZRC* team, int index,string area){
 	oldLoc = Vector();
 	vector <tank_t> myTanks;
 	oldAngle = 0.0;
-	maxDist = 10; // 10;
+	maxDist = 30; // 10;
 	time = 0;
 	maxtime = 100;
 }
@@ -50,15 +56,16 @@ void ScoutAgent::Update(vector <obstacle_t> obstacles, OCCGrid * grid){
 	//myTeam->shoot(botIndex);
 	Vector curGoal;
 	//get current path
-	if (graph == NULL){
+	/*if (graph == NULL){
 		graph = new Graph();
 		createVisibilityGraph(Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), Vector(-400, 400), obstacles, graph);
 		recalculatePath(curGoal, myTanks, myObst);
-	}
+	}*/
 		
-	if(numObstacles != myObst.size()){
+	/*if(numObstacles != myObst.size()){
 		recalculatePath(curGoal,myTanks,myObst);
-	}
+		numObstacles = myObst.size();
+	}*/
 
 	//1st dimention = j = rows, 2nd is i = column,  coord bottom left is 0 top right = 800 800 i-400, j-400 = position.
 	//if (myTanks[botIndex].flag.compare("-") == 0){
@@ -71,63 +78,108 @@ void ScoutAgent::Update(vector <obstacle_t> obstacles, OCCGrid * grid){
 		if (path.size() != 0)
 			curGoal = path.front();
 		else{
-			path.push_back(Vector(-400, -400));
+			path.push_back(Vector(0, 0));
 		}
 		double ** g = grid->getGrid();
 		boolean curIn = isInObstacle(curGoal, myObst);
-		boolean finalIn = isInObstacle(path.back(), myObst);
-
-		if (maxtime>=time || curIn || finalIn || isCloseToGoal(Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), curGoal)){
-			if (finalIn || curIn || maxtime<=time){
+		int x = curGoal.x;
+		int y = curGoal.y;
+		//boolean finalIn = isInObstacle(path.back(), myObst);
+		/*if (curIn)
+			g[x + 400][y + 400] = 1;*/
+		boolean isClose = isCloseToGoal(Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), curGoal);
+		if (/*maxtime<=time ||*/ curIn /*|| finalIn*/ || isClose){//isCloseToGoal(Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), curGoal)){
+			/*if (finalIn || curIn || maxtime<=time){
 				path.clear();
-			}
-			if (!path.empty() && maxtime >= time)
+			}*/
+			if (!path.empty() && (isClose||curIn))//maxtime >= time)
 				path.pop_front();
-			if (path.size() != 0 && maxtime >= time)
+			if (path.size() != 0/* && maxtime >= time*/)
 				curGoal = path.front();
 			else{
 				//curGoal = Vector(0, 0);
 				int i = 0;
 				int j = 0;
 				boolean found = false;
-				for (j = 0; j < grid->getGridSize(); j++){
-					for (i = 0; i < grid->getGridSize(); i++){
-						//printf("\nHmm2: %f", g[j][i]);
-						if (g[j][i] < 0.9 && g[j][i] > 0.1){
-							int newI = i-400;
-							int newJ = j-400;
-							if (newI <= -390)
-								newI += 10;
-							else if (newI >= 390)
-								newI -= 10;
-							if (newJ <= -390)
-								newJ += 10;
-							else if (newJ>=390)
-								newJ -= 10;
-							//path.push_back(Vector(newI, newJ));
-							found = true;
-							curGoal = Vector(newI, newJ);//path.front();
-							recalculatePath(curGoal, myTanks, myObst);
-							printf("\nnew goal2: %d %d", newI, newJ);
-							break;
+				if (myArea.compare("lower") == 0)
+				{
+					for (j = 0; j < grid->getGridSize(); j++){
+						for (i = 0; i < grid->getGridSize(); i++){
+							//printf("\nHmm2: %f", g[j][i]);
+							if (g[j][i] < 0.9 && g[j][i] > 0.1){
+								int newI = i - 400;//x - 400;//
+								int newJ = j - 400;//y - 400;//
+								if (newI <= -390)
+									newI += 10;
+								else if (newI >= 390)
+									newI -= 10;
+								if (newJ <= -390)
+									newJ += 10;
+								else if (newJ >= 390)
+									newJ -= 10;
+								path.push_back(Vector(newI, newJ));
+								found = true;
+								curGoal = path.front();//Vector(newI, newJ);//
+								//recalculatePath(curGoal, myTanks, myObst);
+								printf("\nnew goal2: %d %d", newI, newJ);
+								//return new Vector(path.front());
+								break;
+								//curGoal = path.front()
+								//return setNextGoal(i, j);
+							}
 						}
+						if (found)
+							break;
 					}
-					if (found)
-						break;
 				}
+				else{// if (myArea.compare("upper") ==0){
+					for (j = grid->getGridSize()-1; j >= 0; j--){
+						for (i = grid->getGridSize()-1; i >= 0; i--){
+							//printf("\nHmm2: %f", g[j][i]);
+							if (g[j][i] < 0.9 && g[j][i] > 0.1){
+								//return setNextGoal(i, j);
+								int newI = i - 400;//x - 400;//
+								int newJ = j - 400;//y - 400;//
+								if (newI <= -390)
+									newI += 10;
+								else if (newI >= 390)
+									newI -= 10;
+								if (newJ <= -390)
+									newJ += 10;
+								else if (newJ >= 390)
+									newJ -= 10;
+								path.push_back(Vector(newI, newJ));
+								found = true;
+								curGoal = path.front();//Vector(newI, newJ);//
+								//recalculatePath(curGoal, myTanks, myObst);
+								printf("\nnew goal2: %d %d", newI, newJ);
+								//return new Vector(path.front());
+								break;
+								printf("Upper!!");
+							}
+						}
+						if (found)
+							break;
+					}
+				}
+
+
+
+				//Vector * temp = findNextGoal(grid);
+				//curGoal = path.front();
 			}
 		}
 		printf("\nCurGoal: %f %f", curGoal.x, curGoal.y);
-		printf("\nfinalGoal: %f %f", path.back().x, path.back().y);
+		//printf("\nfinalGoal: %f %f", path.back().x, path.back().y);
 		aForce = calcAttractiveForceToGoal(Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), curGoal, 0.5, 20, 1);//Vector(goal.pos[0], goal.pos[1]),
 		//0.5, 20, 1);
 	//}
 	//end frobbing - f = a/dist + b
 	//last param = range that obstacles affect bot.
 	vector <Vector> rForces = calcRepulsiveForcesFromObstacles(
-		Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), myObst, 10, 0, 10); //range was 40 a was 40
+		Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), myObst, 100, 0, 20); //range was 40 a was 40
 	vector <Vector> tForces = calcTangentialForcesFromObstacles(
-		Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), myObst, 10, 0, 10);//range was 50 a was 100
+		Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), myObst, 300, 0, 50);//range was 50 a was 100
 	
 
 	newDirection += aForce;
@@ -165,6 +217,15 @@ void ScoutAgent::Update(vector <obstacle_t> obstacles, OCCGrid * grid){
 	if (angle > 0.0000001 || angle < -0.0000001)
 	{
 		double newVel = (angle / (M_1_PI / 2.0)) + (100.0*avgAngVel);
+		printf("\nnewVel %f", newVel);
+		/*if (newVel < 0)
+			newVel = 0;
+			if (newVel > 50)
+			newVel = 50;*/
+		if (!isfinite(newVel)){
+			newVel = 1;
+			printf("av changed");
+		}
 		if (side < 0){
 			myTeam->angvel(botIndex, newVel);
 		}
@@ -172,12 +233,16 @@ void ScoutAgent::Update(vector <obstacle_t> obstacles, OCCGrid * grid){
 			myTeam->angvel(botIndex, -newVel);
 		}
 	}
-	double s = (newDirection.length() / 20)*dot;// +(-100 * avgVel.length())) / 20.0;
+	double s = (newDirection.length() / 20.0)*dot;// +(-100 * avgVel.length())) / 20.0;
 	if (s < 0.0)
 		s = 0.0;
 	if (s > 1.0)
 		s = 1.0;
-	printf("\nSpeed: %f", s);
+	if (!isfinite(s)){
+		s = 1.0;
+		printf("s changed");
+	}
+	//printf("\nSpeed: %f", s);
 	myTeam->speed(botIndex, s);
 	time++;
 	//myTeam->accelx(botIndex,)
@@ -198,12 +263,12 @@ boolean ScoutAgent::isCloseToGoal(Vector location, Vector goal){
 	return false;
 }
 
-void ScoutAgent::recalculatePath(Vector curGoal, vector<tank_t>myTanks, vector<obstacle_t> obstacles){
+/*void ScoutAgent::recalculatePath(Vector curGoal, vector<tank_t>myTanks, vector<obstacle_t> obstacles){
 	/*if (search!=NULL)
 		delete search;
 	if (graph!=NULL)
 		delete graph;*/
-	Vector goal = Vector(curGoal);
+/*	Vector goal = Vector(curGoal);
 	createVisibilityGraph(Vector(myTanks[botIndex].pos[0], myTanks[botIndex].pos[1]), goal, obstacles, graph);
 	path.clear();
 	search = new ASearch(*graph);
@@ -220,7 +285,7 @@ void ScoutAgent::recalculatePath(Vector curGoal, vector<tank_t>myTanks, vector<o
 		//drawArrow(pos1, pos2, 1);
 		++itNode;
 	}
-}
+}*/
 
 boolean ScoutAgent::isInObstacle(Vector pos, vector<obstacle_t> obstacles){
 	
@@ -253,4 +318,57 @@ boolean ScoutAgent::isInObstacle(Vector pos, vector<obstacle_t> obstacles){
 	//baseCenter = new Vector(maxx - 30, maxy - 30);
 
 	return false;
+}
+
+Vector * ScoutAgent::findNextGoal(OCCGrid * grid){
+	int i = 0;
+	int j = 0;
+	double ** g = grid->getGrid();
+	//boolean found = false;
+	if (myArea.compare("lower") == 0)
+	{
+		for (j = 0; j < grid->getGridSize(); j++){
+			for (i = 0; i < grid->getGridSize(); i++){
+				//printf("\nHmm2: %f", g[j][i]);
+				if (g[j][i] < 0.9 && g[j][i] > 0.1){
+					return setNextGoal(i, j);
+				}
+			}
+			//if (found)
+			//	break;
+		}
+	}
+	else{// if (myArea.compare("upper") ==0){
+		for (j = 800; j < grid->getGridSize(); j--){
+			for (i = 800; i < grid->getGridSize(); i--){
+				//printf("\nHmm2: %f", g[j][i]);
+				if (g[j][i] < 0.95 && g[j][i] > 0.05){
+					return setNextGoal(i, j);
+					printf("Upper!!");
+				}
+			}
+			//if (found)
+			//	break;
+		}
+	}
+}
+
+Vector * ScoutAgent::setNextGoal(int x, int y){
+	int newI = x - 400;//i - 400;
+	int newJ = y - 400;//j - 400;
+	if (newI <= -390)
+		newI += 10;
+	else if (newI >= 390)
+		newI -= 10;
+	if (newJ <= -390)
+		newJ += 10;
+	else if (newJ >= 390)
+		newJ -= 10;
+	path.push_back(Vector(newI, newJ));
+	//found = true;
+	//curGoal = path.front();//Vector(newI, newJ);//
+	//recalculatePath(curGoal, myTanks, myObst);
+	printf("\nnew goal2: %d %d", newI, newJ);
+	return new Vector(path.front());
+	//break;
 }

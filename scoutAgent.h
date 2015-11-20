@@ -17,15 +17,18 @@ class ScoutAgent {
 	int time;
 	int maxtime;
 	Vector oldLoc;
-	Graph* graph;
-	ASearch *search;
-	int numObstacles;
+	string myArea;
+	//Graph* graph;
+	//ASearch *search;
+	//int numObstacles;
 public: ScoutAgent(BZRC* team, int index, string area);
 
 		void Update(vector <obstacle_t> obstacles, OCCGrid * grid);
 private:
 	boolean isCloseToGoal(Vector location, Vector goal);
-	void recalculatePath(Vector curGoal, vector<tank_t>myTanks, vector<obstacle_t> obstacles);
+	//void recalculatePath(Vector curGoal, vector<tank_t>myTanks, vector<obstacle_t> obstacles);
 	boolean isInObstacle(Vector pos, vector<obstacle_t> obstacles);
+	Vector * findNextGoal(OCCGrid * grid);
+	Vector * setNextGoal(int x, int y);
 };
 #endif
